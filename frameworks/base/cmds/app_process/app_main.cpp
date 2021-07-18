@@ -80,7 +80,7 @@ public:
     {
         sp<ProcessState> proc = ProcessState::self();
         ALOGV("App process: starting thread pool.\n");
-        proc->startThreadPool();
+        proc->startThreadPool();//应用启动线程池
 
         AndroidRuntime* ar = AndroidRuntime::getRuntime();
         ar->callMain(mClassName, mClass, mArgs);

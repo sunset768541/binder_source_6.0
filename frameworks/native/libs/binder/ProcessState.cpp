@@ -60,6 +60,7 @@ public:
 protected:
     virtual bool threadLoop()
     {
+        //开启循环等待客户端请求
         IPCThreadState::self()->joinThreadPool(mIsMain);
         return false;
     }
@@ -289,7 +290,7 @@ void ProcessState::spawnPooledThread(bool isMain)
         String8 name = makeBinderThreadName();
         ALOGV("Spawning new pooled thread, name=%s\n", name.string());
         sp<Thread> t = new PoolThread(isMain);
-        t->run(name.string());
+        t->run(name.string());//线程启动
     }
 }
 

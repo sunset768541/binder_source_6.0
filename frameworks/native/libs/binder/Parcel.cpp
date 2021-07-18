@@ -304,6 +304,7 @@ status_t unflatten_binder(const sp<ProcessState>& proc,
                 *out = reinterpret_cast<IBinder*>(flat->cookie);
                 return finish_unflatten_binder(NULL, *flat, in);
             case BINDER_TYPE_HANDLE:
+                //BpBinder
                 *out = proc->getStrongProxyForHandle(flat->handle);
                 return finish_unflatten_binder(
                     static_cast<BpBinder*>(out->get()), *flat, in);

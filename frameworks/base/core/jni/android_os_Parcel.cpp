@@ -430,7 +430,9 @@ static jstring android_os_Parcel_readString(JNIEnv* env, jclass clazz, jlong nat
 static jobject android_os_Parcel_readStrongBinder(JNIEnv* env, jclass clazz, jlong nativePtr)
 {
     Parcel* parcel = reinterpret_cast<Parcel*>(nativePtr);
+    reply.readStrongBinder
     if (parcel != NULL) {
+        //将replay中的数据转化为java对象
         return javaObjectForIBinder(env, parcel->readStrongBinder());
     }
     return NULL;

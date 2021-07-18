@@ -574,11 +574,12 @@ jobject javaObjectForIBinder(JNIEnv* env, const sp<IBinder>& val)
         val->detachObject(&gBinderProxyOffsets);
         env->DeleteGlobalRef(object);
     }
-
+        //val是BpBinder  ，所以创建BpBinder的代理对象BinderProxy
     object = env->NewObject(gBinderProxyOffsets.mClass, gBinderProxyOffsets.mConstructor);
     if (object != NULL) {
         LOGDEATH("objectForBinder %p: created new proxy %p !\n", val.get(), object);
         // The proxy holds a reference to the native object.
+        //BinderProxy的mObject持有nativce层的BpBinder(handle)指针
         env->SetLongField(object, gBinderProxyOffsets.mObject, (jlong)val.get());
         val->incStrong((void*)javaObjectForIBinder);
 
@@ -1101,7 +1102,7 @@ static jboolean android_os_BinderProxy_transact(JNIEnv* env, jobject obj,
     }
 
     IBinder* target = (IBinder*)
-        env->GetLongField(obj, gBinderProxyOffsets.mObject);
+        env->GetLongField(obj, gBinderProxyOffsets.mObject);//使用BinderProxy通信时，采用的时Nativce层的BpBinder(handle)
     if (target == NULL) {
         jniThrowException(env, "java/lang/IllegalStateException", "Binder has been finalized!");
         return JNI_FALSE;

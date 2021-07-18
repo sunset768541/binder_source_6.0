@@ -332,9 +332,9 @@ enum binder_deferred_state {
 struct binder_proc {
 	struct hlist_node proc_node;
 	struct rb_root threads;
-	struct rb_root nodes;
-	struct rb_root refs_by_desc;//
-	struct rb_root refs_by_node;//
+	struct rb_root nodes;//binder实体，本客户端中的
+	struct rb_root refs_by_desc;//通过des的binder引用红黑树 des实际也是handle的值
+	struct rb_root refs_by_node;//通过node引用的binder 红黑树
 	int pid;
 	struct vm_area_struct *vma;
 	struct mm_struct *vma_vm_mm;
@@ -1630,8 +1630,8 @@ static int binder_translate_handle(struct flat_binder_object *fp,
 				   struct binder_thread *thread)
 {
 	struct binder_ref *ref;
-	struct binder_proc *proc = thread->proc;
-	struct binder_proc *target_proc = t->to_proc;
+	struct binder_proc *proc = thread->proc;//当前进程  
+	struct binder_proc *target_proc = t->to_proc;//目标进程
 	//根据handle值获取binder_ref,getService 当前是smgr进程,smr进程中保存了 ams 的 binder_ref
 	//此处的proc
 	ref = binder_get_ref(proc, fp->handle,
@@ -1915,9 +1915,9 @@ static void binder_transaction(struct binder_proc *proc,
 		}
 		target_proc = target_thread->proc;//target_thread->proc是什么？
 	} else {
-		if (tr->target.handle) {
+		if (tr->target.handle) {//如果目标进程的handle不为0
 			struct binder_ref *ref;
-
+			//通过handler获取进程的信息
 			ref = binder_get_ref(proc, tr->target.handle, true);
 			if (ref == NULL) {
 				binder_user_error("%d:%d got transaction to invalid handle\n",
@@ -2669,7 +2669,7 @@ static int binder_has_thread_work(struct binder_thread *thread)
 	return !list_empty(&thread->todo) || thread->return_error != BR_OK ||
 		(thread->looper & BINDER_LOOPER_STATE_NEED_RETURN);
 }
-
+//读取数据
 static int binder_thread_read(struct binder_proc *proc,
 			      struct binder_thread *thread,
 			      binder_uintptr_t binder_buffer, size_t size,
@@ -2916,7 +2916,7 @@ retry:
 			else if (!(t->flags & TF_ONE_WAY) ||
 				 t->saved_priority > target_node->min_priority)
 				binder_set_nice(target_node->min_priority);
-			cmd = BR_TRANSACTION;
+			cmd = BR_TRANSACTION;//关键设置cmd为BR_TRANSACTION
 		} else {
 			tr.target.ptr = 0;
 			tr.cookie = 0;
@@ -3489,7 +3489,7 @@ static int binder_open(struct inode *nodp, struct file *filp)
 	init_waitqueue_head(&proc->wait);
 	proc->default_priority = task_nice(current);
 	binder_dev = container_of(filp->private_data, struct binder_device,
-				  miscdev);
+				  miscdev);//通过一个结构变量中一个成员的地址找到这个结构体变量的首地址
 	proc->context = &binder_dev->context;
 
 	binder_lock(__func__);
